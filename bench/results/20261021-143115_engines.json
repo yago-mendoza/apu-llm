@@ -1,0 +1,101 @@
+{
+  "at": "2026-10-21T12:31:15+00:00",
+  "ctx": 16384,
+  "machine": {
+    "vendor": "LENOVO",
+    "model": "21YWCTO1WW",
+    "cpu": "AMD Ryzen AI 7 PRO 450 w/ Radeon 860M",
+    "cores": 8,
+    "threads": 16,
+    "gpus": [
+      "AMD Radeon(TM) 860M Graphics (driver 32.0.22054.1006)"
+    ],
+    "ram_gb": 63.1,
+    "ram_free_gb": 16.1,
+    "ram_modules": 4,
+    "ram_mts": 8000,
+    "os": "Microsoft Windows 11 Pro 10.0.26200"
+  },
+  "results": {
+    "ollama": {
+      "model": "qwen3.8:27b",
+      "runs": [
+        {
+          "gen": {
+            "gen_tps": 2.3034996476275404,
+            "prompt_tps": 14.344479916973144,
+            "gen_tokens": 256,
+            "prompt_tokens": 57
+          },
+          "read": {
+            "gen_tps": 2.6472587304938395,
+            "prompt_tps": 14.033797369029323,
+            "gen_tokens": 8,
+            "prompt_tokens": 2923
+          }
+        },
+        {
+          "gen": {
+            "gen_tps": 2.800069012950954,
+            "prompt_tps": 11.764066722364175,
+            "gen_tokens": 256,
+            "prompt_tokens": 55
+          },
+          "read": {
+            "gen_tps": 1.4357419340018147,
+            "prompt_tps": 13.532988259583675,
+            "gen_tokens": 8,
+            "prompt_tokens": 2921
+          }
+        }
+      ],
+      "placement": {
+        "size": 17527681841,
+        "size_vram": 17527681841,
+        "gpu_share": 1.0
+      },
+      "median_gen_tps": 2.55,
+      "median_prompt_tps": 13.8
+    },
+    "ollama-cpu": {
+      "model": "qwen3.8:27b",
+      "runs": [
+        {
+          "gen": {
+            "gen_tps": 2.0511406080442884,
+            "prompt_tps": 6.599197610894934,
+            "gen_tokens": 256,
+            "prompt_tokens": 54
+          },
+          "read": {
+            "gen_tps": 2.4391842757985662,
+            "prompt_tps": 8.913999340107619,
+            "gen_tokens": 8,
+            "prompt_tokens": 2920
+          }
+        },
+        {
+          "gen": {
+            "gen_tps": 2.281949700319836,
+            "prompt_tps": 7.372296466253518,
+            "gen_tokens": 256,
+            "prompt_tokens": 54
+          },
+          "read": {
+            "gen_tps": 2.287318676385865,
+            "prompt_tps": 9.229506043031725,
+            "gen_tokens": 8,
+            "prompt_tokens": 2920
+          }
+        }
+      ],
+      "placement": {
+        "size": 18264820282,
+        "size_vram": 0,
+        "gpu_share": 0.0
+      },
+      "median_gen_tps": 2.17,
+      "median_prompt_tps": 9.1
+    }
+  }
+}

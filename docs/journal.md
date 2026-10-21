@@ -82,3 +82,16 @@ Clean run, nothing else downloading, Chrome and Cursor still open (`bench/result
 | CPU only | 11.2 (11.6, 11.2, 10.5) | 53 (54, 52, 53) | 20.9 GB, 0 % GPU |
 
 Writing is a tie within the run-to-run spread; reading a long prompt is 1.8× faster on the iGPU. 11.7 tok/s at ~2 GB per token is ~23 GB/s of effective weight traffic, a fifth of the theoretical bandwidth, on both devices: whatever limits generation is not specific to the GPU.
+
+LM Studio 0.4.26 under the same clean conditions, same hard-linked weights, `--gpu max`, context 16384 (`bench/results/20261021-140315_engines.json`): writing 9.4 tok/s (7.8, 9.4, 9.7), reading 83 tok/s (84, 78, 83). Ollama is ~25 % faster writing and ~12 % faster reading. LM Studio loads with 4 parallel slots by default (`lms ps`: `PARALLEL 4`), which may account for part of the gap; not isolated.
+
+- Decision: Ollama is the engine the guide keeps. It is faster here on byte-identical weights, open source, runs as a service, and its API reports the GPU/CPU split. LM Studio's advantage is that it needs no GPU switch.
+
+**Qwen3.8 27B, dense** (`qwen3.8:27b`, `bench/results/20261021-143115_engines.json`, 2 runs each):
+
+| Ollama 0.40.7, `qwen3.8:27b` | Writing (tok/s) | Reading (tok/s) | Placement checked |
+|---|---|---|---|
+| Vulkan iGPU | 2.6 (2.3, 2.8) | 13.8 (14, 14) | 16.3 GB, 100 % GPU |
+| CPU only | 2.2 (2.1, 2.3) | 9.1 (9, 9) | 17.0 GB, 0 % GPU |
+
+A 256-token answer takes about 100 s; a 2,900-token prompt takes about 3.5 min to read before the first word. Every token reads all ~16 GB of weights: 2.6 tok/s is ~42 GB/s of weight traffic, twice the MoE model's effective rate, but nine times as much data per token. On this machine it is for short, hard questions where waiting is acceptable, not for documents.
