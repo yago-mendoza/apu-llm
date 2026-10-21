@@ -108,8 +108,8 @@ A 256-token answer takes about 100 s; a 2,900-token prompt takes about 3.5 min t
 
 **One-line installer** (`install.ps1`), written from everything above that had to be done by hand: Python via winget if missing (the Microsoft Store `python` stub does not count), `pip install --user` from GitHub (falling back to the zip when git is absent), pip's user Scripts folder added to the user PATH (`sysconfig.get_path('scripts', 'nt_user')`), then `apu setup`, which asks before each step.
 
-## In use: first impression (18:30)
+## In use (18:30)
 
-The owner's first real use was the Ollama app's chat, asking for ASCII art; the verdict was blunt (it cannot draw ASCII). Repeated through `apu ask`, temperature 0, thinking off: a "sitting cat" came out as a dog in profile (3.6 s), a house with a roof narrower than its walls and the base drawn twice (54 tok at 16.7 tok/s, load 36.1 s). ASCII art is grid layout, which tokenised text makes hard for any model, and it is not the job the repo is built for; it still shows the 18.2 vs 57.6 gap. Decision: keep both models installed (38 GB of disk, no memory when idle) and use the local model only through Claude Code for private or bulk work.
+Decision after the first day: the local model's place is the one the MCP tool was built for, bulk text work (summarising, classifying, extracting, reformatting many files) that Claude Code hands down and checks. Both models stay installed (38 GB of disk, no memory when idle).
 
 Side note: the Ollama app's chat had `qwen3.5:4b` selected, not downloaded, so typing "hi" started a pull. Cancelled; the orphan `-partial` blobs (644 MB) are not removed by Ollama and were deleted by hand. Pick the model in the selector under the input box first.

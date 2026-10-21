@@ -16,8 +16,14 @@
 
 <p align="center">
   <b>A side project of <a href="https://infraphysics.net">InfraPhysics</a>.</b>
-  The full story of the build, every decision and why, is on <a href="https://infraphysics.net"><b>infraphysics.net</b></a> (bits2bricks).
+  The full write-up, every decision and why, is on <a href="https://infraphysics.net/blog/bits2bricks/local-llm-on-an-integrated-gpu"><b>infraphysics.net</b></a>
 </p>
+
+<p align="center">
+  <img src="docs/assets/hero.webp" width="820" alt="How it fits together: Claude Code talks over MCP to the apu command, which drives Ollama (llama.cpp on Vulkan); Ollama runs the model on the Radeon 860M, which sits on one chip with the CPU and has no memory of its own; both read the same 64 GB of LPDDR5X, 20.6 GB of which hold the model. 11.7 tok/s writing, 93 tok/s reading, 3B of 35B parameters active per token">
+</p>
+
+I bought a ThinkPad with 64 GB of RAM and no graphics card, and wanted to know what that memory is worth for AI. The answer turned out to be this repository: on a laptop whose GPU borrows the system RAM, a 35-billion-parameter model fits whole on the GPU, runs offline, and takes bulk text work off Claude Code's hands. Everything here was measured on that one machine on 21 October 2026, including a conclusion I got wrong and withdrew. Why the GPU has no memory of its own, why Ollama and not LM Studio, why nothing is reserved for the GPU, and whether 64 GB were worth paying for, are in the article on [**infraphysics.net**](https://infraphysics.net/blog/bits2bricks/local-llm-on-an-integrated-gpu); the step-by-step log is in [`docs/journal.md`](docs/journal.md).
 
 ---
 
@@ -77,6 +83,11 @@ apu setup                      installs and configures (Windows)
 apu mcp                        the MCP server for Claude Code
 ```
 
+<p align="center">
+  <img src="docs/assets/screens/07-terminal-cold-load-after-idle.png" width="720" alt="apu ping after the model sat idle for five minutes: load 33.8 s, total 36.4 s, with the note that the first call loads the model from disk; apu stats below shows 10.9 GB free and a median of 11.2 tok/s">
+  <br><sub>After five idle minutes Ollama frees the memory, and the next call pays 34 s to read the model back from disk. <code>apu ping</code> says so.</sub>
+</p>
+
 Timings go to stderr, the answer to stdout, so `apu ask ... > answer.md` stays clean. Every request is logged to `~/.apu/log.jsonl`; `apu stats` summarises it. Settings live in `~/.apu.json` (`model`, `ctx`, `think`, `host`) and can be overridden per shell with `APU_MODEL`, `APU_CTX`, `APU_THINK`, `APU_HOST`.
 
 ## Claude Code
@@ -128,6 +139,17 @@ Ran it on another machine? `apu bench` writes a JSON file with the machine's spe
 - [`tools/compare_engines.py`](tools/compare_engines.py): the same weights and prompts through Ollama and LM Studio, with engine-side timings.
 - [`tools/capture.ps1`](tools/capture.ps1): captures one window (never the whole screen) for the screenshots.
 - `src/apu/`: the command, standard library only. `ollama.py` talks to Ollama's native API, which reports engine timings and the GPU/CPU split; `mcp.py` is a minimal MCP server over stdio.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/assets/screens/02-ollama-app-integrations.png" alt="The Ollama desktop app's Apps screen: Claude Code, Codex CLI, OpenCode, Cline, Qwen Code and other coding tools that Ollama can launch against a local model"></td>
+    <td width="50%"><img src="docs/assets/screens/04-lmstudio-home.png" alt="LM Studio 0.4.26 advanced settings: Developer Mode and the option to start the local LLM service on login"></td>
+  </tr>
+  <tr>
+    <td><sub><b>Ollama</b>, the engine used here: a background service with an API. Its app also launches coding tools against the local model.</sub></td>
+    <td><sub><b>LM Studio</b>, the cross-check: same llama.cpp underneath, a desktop app first, the GPU found without any switch.</sub></td>
+  </tr>
+</table>
 
 Ollama and LM Studio both run models with ggml/llama.cpp from GGUF files; this repo uses Ollama as the engine (faster here on identical weights, open source, a service with an API) and LM Studio as a cross-check. The two can share one copy of the weights through a hard link: `lms import --hard-link <gguf>` (the default `lms import` *moves* the file).
 
