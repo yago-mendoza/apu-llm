@@ -25,3 +25,45 @@ The result: `inference compute id=cpu ... available="30.3 GiB"`, and a default c
 - Note: with 47.6 GiB counted as VRAM, Ollama raises its default context to 262144 tokens. The KV cache for that is several GB. `apu` asks for 16384 per request instead.
 
 **`apu` installed** with `pip install --user -e .`. Pitfall: pip puts `apu.exe` in `%APPDATA%\Python\Python314\Scripts`, which is not on PATH by default; added to the user PATH.
+
+**Downloads.** `qwen3.6:35b-a3b` (21 GB, Q4_K_M) and `qwen3.8:27b` (18 GB) pulled in parallel over home Wi-Fi at 7 to 9 MB/s combined, about an hour in total. Pitfall: the first pull stalled at 2 % with no error, while the blob on disk already measured 20.2 GB. Ollama preallocates the whole file, so its size says nothing about progress; the real progress is in the `-partial-N` JSON files next to it (`Completed` / `Size`), or in the `ollama pull` progress line. Restarting the pull resumed where it stopped.
+
+- Decision: download Qwen3.8 27B as well. On the Artificial Analysis Intelligence Index v4.3.2 it scores 33.7 against 18.2 for Qwen3.6 35B-A3B, but it is dense, so every token reads all 27B weights instead of ~3B: expected to be several times slower. The point is to measure both and keep the fast one for everyday work and the strong one for hard tasks.
+
+**LM Studio** installed with `winget install ElementLabs.LMStudio`, as the second engine for the comparison.
+
+- Decision: feed LM Studio the GGUF files Ollama already downloaded instead of downloading them again. Both engines are built on ggml and read the same GGUF format (Ollama runs newer architectures on its own ggml-based engine rather than llama.cpp, so whether LM Studio accepts Ollama's file unchanged is checked below, not assumed); Ollama stores each model as content-addressed blobs under `~/.ollama/models/blobs`, and the largest blob of a model is the GGUF itself. Reusing it saves ~40 GB of downloads and, more importantly for the comparison, guarantees both engines run byte-identical weights.
+
+First run of LM Studio 0.4.26: it offers a first model (Gemma 4 E4B, 6.33 GB, `screens/03-lmstudio-first-run.png`), skipped; then *Advanced settings* (`screens/04-lmstudio-home.png`) with *Start local LLM service on login* **on by default**.
+
+- Decision: turn Developer Mode on (it hides the engine, GPU offload and server settings otherwise) and the start-on-login service off. Ollama is the engine this guide keeps running; two servers resident from boot would each hold memory for nothing.
+
+**Finding 2: LM Studio needs no GPU switch, and sees less memory than Ollama.** `lms runtime ls` shows it ships CPU, CUDA and Vulkan builds of llama.cpp and selected `llama.cpp-win-x86_64-vulkan-avx2@2.61.0` by itself. `lms runtime survey`:
+
+```
+AMD Radeon(TM) 860M Graphics (Vulkan, Integrated)   31.76 GiB
+RAM: 63.14 GiB
+```
+
+31.76 GiB is half the RAM plus the 512 MB dedicated carve-out: the *shared GPU memory* ceiling Windows' display driver model sets for an integrated GPU. Ollama reported 47.6 GiB for the same GPU. Which number is the real ceiling is tested below by loading models larger than 32 GB.
+
+Settings confirmed in `~/.lmstudio/settings.json`: `developerMode: true`, `enableLocalService: false`. Two defaults worth knowing: a model loaded on demand through the API stays in memory for an hour (`jitModelTTL: 3600 s`, against Ollama's 5 minutes), and a *loading guardrail* (`modelLoadingGuardrails.mode: high`) refuses models it estimates will not fit.
+
+- Pitfall: `lms import <file>` **moves** the file by default, which would pull the GGUF out from under Ollama. `lms import --hard-link` (`-L`) gives LM Studio a second directory entry for the same bytes: no extra disk, no admin rights (unlike `--symbolic-link` on Windows), and deleting the model in one engine leaves the other intact. Hard links need both stores on the same NTFS volume; here both live on `C:`.
+
+**First answers.** `qwen3.6:35b-a3b` is Q4_K_M, 35.5B parameters, family `qwen35moe`, and Ollama reports `runner: llamacpp` for it: on this model both engines run llama.cpp, so the comparison is engine packaging and defaults, not two different inference codes. Cold load from the NVMe: 55 s in Ollama, 124 s in LM Studio. Loaded size 20.6 GB, 100 % on the GPU, context 16384.
+
+The GGUF went to LM Studio as a hard link (`New-Item -ItemType HardLink`, the blob starts with the `GGUF` magic bytes; `fsutil hardlink list` shows both paths). LM Studio lists it as `qwen3.6-35b-a3b, 35B, qwen35moe, 21.72 GB` with no conversion.
+
+**Finding 3: on the shared-memory path, the iGPU is slower than the CPU.** Same weights, same prompts (`tools/compare_engines.py`; 256 generated tokens; a 2,906-token prompt for reading), temperature 0, thinking off, engines measured one at a time:
+
+| Engine, device | Writing (tok/s) | Reading (tok/s) |
+|---|---|---|
+| LM Studio 0.4.26, Vulkan iGPU | 7.1 (runs 6.1, 7.1, 7.1) | 62 |
+| Ollama 0.40.7, Vulkan iGPU | 7.6 (one `apu ask`, 129 tokens) | 28 (35-token prompt, not comparable) |
+| Ollama 0.40.7, CPU only (`num_gpu: 0`) | 11.3, 10.8 | 55, 52 |
+
+During generation the GPU's compute engine sat near 48 % busy, CPU 23 to 51 % (with Chrome and a download running), and `GPU Adapter Memory\Shared Usage` read 23.4 GB: the weights were in GPU-mapped memory and the GPU was working, just slowly. 7 tok/s with ~3B active parameters at ~4.8 bits is roughly 2 GB read per token, about 14 GB/s, against a theoretical ~128 GB/s for 128-bit LPDDR5X-8000.
+
+- Hypothesis: on Windows, an iGPU's *shared* memory (system pages mapped through the GPU's address translation) is a slower path than memory the firmware carves out as *dedicated*, even though both are the same DRAM chips. Supporting evidence: AMD's own LM Studio tests report Variable Graphics Memory adding 17 to 22 % on top of Vulkan offload ([AMD](https://www.amd.com/en/blogs/2024/accelerating-llama-cpp-performance-in-consumer-llm.html)), and a llama.cpp report of GPU + shared memory running slower than CPU + RAM on Windows ([llama.cpp #10330](https://github.com/ggml-org/llama.cpp/issues/10330)). Ollama's vendored llama.cpp also trails upstream on AMD Vulkan ([ollama #15601](https://github.com/ollama/ollama/issues/15601)), but LM Studio, on a newer llama.cpp, is just as slow here, so that is not the main cause.
+- Next test: reserve dedicated memory with AMD Software (Performance, Tuning, Variable Graphics Memory), reboot, rerun the same comparison.

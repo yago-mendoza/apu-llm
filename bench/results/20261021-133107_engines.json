@@ -1,0 +1,76 @@
+{
+  "at": "2026-10-21T11:31:07+00:00",
+  "ctx": 16384,
+  "machine": {
+    "vendor": "LENOVO",
+    "model": "21YWCTO1WW",
+    "cpu": "AMD Ryzen AI 7 PRO 450 w/ Radeon 860M",
+    "cores": 8,
+    "threads": 16,
+    "gpus": [
+      "AMD Radeon(TM) 860M Graphics (driver 32.0.22054.1006)"
+    ],
+    "ram_gb": 63.1,
+    "ram_free_gb": 4.4,
+    "ram_modules": 4,
+    "ram_mts": 8000,
+    "os": "Microsoft Windows 11 Pro 10.0.26200"
+  },
+  "results": {
+    "lmstudio": {
+      "model": "qwen3.6-35b-a3b",
+      "runs": [
+        {
+          "gen": {
+            "gen_tps": 6.137820646670675,
+            "prompt_tps": 9.900352947582581,
+            "gen_tokens": 256,
+            "prompt_tokens": 40,
+            "reasoning_tokens": 256
+          },
+          "read": {
+            "gen_tps": 9.59414273414714,
+            "prompt_tps": 62.00539045760939,
+            "gen_tokens": 24,
+            "prompt_tokens": 2906,
+            "reasoning_tokens": 24
+          }
+        },
+        {
+          "gen": {
+            "gen_tps": 7.1050625883570255,
+            "prompt_tps": 20.484856058037693,
+            "gen_tokens": 256,
+            "prompt_tokens": 40,
+            "reasoning_tokens": 256
+          },
+          "read": {
+            "gen_tps": 9.176061490782846,
+            "prompt_tps": 68.03397156737184,
+            "gen_tokens": 24,
+            "prompt_tokens": 2906,
+            "reasoning_tokens": 24
+          }
+        },
+        {
+          "gen": {
+            "gen_tps": 7.114547819010256,
+            "prompt_tps": 19.94341057250053,
+            "gen_tokens": 256,
+            "prompt_tokens": 40,
+            "reasoning_tokens": 256
+          },
+          "read": {
+            "gen_tps": 8.664332821886557,
+            "prompt_tps": 61.03334365397514,
+            "gen_tokens": 24,
+            "prompt_tokens": 2906,
+            "reasoning_tokens": 24
+          }
+        }
+      ],
+      "median_gen_tps": 7.11,
+      "median_prompt_tps": 62.0
+    }
+  }
+}
