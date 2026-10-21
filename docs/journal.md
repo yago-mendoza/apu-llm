@@ -55,7 +55,7 @@ Settings confirmed in `~/.lmstudio/settings.json`: `developerMode: true`, `enabl
 
 The GGUF went to LM Studio as a hard link (`New-Item -ItemType HardLink`, the blob starts with the `GGUF` magic bytes; `fsutil hardlink list` shows both paths). LM Studio lists it as `qwen3.6-35b-a3b, 35B, qwen35moe, 21.72 GB` with no conversion.
 
-**Finding 3: on the shared-memory path, the iGPU is slower than the CPU.** Same weights, same prompts (`tools/compare_engines.py`; 256 generated tokens; a 2,906-token prompt for reading), temperature 0, thinking off, engines measured one at a time:
+**Finding 3 (withdrawn, kept for the record; see Finding 4): on the shared-memory path, the iGPU is slower than the CPU.** Same weights, same prompts (`tools/compare_engines.py`; 256 generated tokens; a 2,906-token prompt for reading), temperature 0, thinking off, engines measured one at a time:
 
 | Engine, device | Writing (tok/s) | Reading (tok/s) |
 |---|---|---|
@@ -67,3 +67,18 @@ During generation the GPU's compute engine sat near 48 % busy, CPU 23 to 51 % (w
 
 - Hypothesis: on Windows, an iGPU's *shared* memory (system pages mapped through the GPU's address translation) is a slower path than memory the firmware carves out as *dedicated*, even though both are the same DRAM chips. Supporting evidence: AMD's own LM Studio tests report Variable Graphics Memory adding 17 to 22 % on top of Vulkan offload ([AMD](https://www.amd.com/en/blogs/2024/accelerating-llama-cpp-performance-in-consumer-llm.html)), and a llama.cpp report of GPU + shared memory running slower than CPU + RAM on Windows ([llama.cpp #10330](https://github.com/ggml-org/llama.cpp/issues/10330)). Ollama's vendored llama.cpp also trails upstream on AMD Vulkan ([ollama #15601](https://github.com/ollama/ollama/issues/15601)), but LM Studio, on a newer llama.cpp, is just as slow here, so that is not the main cause.
 - Next test: reserve dedicated memory with AMD Software (Performance, Tuning, Variable Graphics Memory), reboot, rerun the same comparison.
+
+**Finding 4: the comparison above was contaminated three ways; cleaned, the iGPU ties the CPU at writing and wins 1.8× at reading.**
+
+1. *Background load.* The iGPU numbers of Finding 3 were taken while `qwen3.8:27b` was still downloading (network, disk writes, hashing on the CPU). The CPU-only numbers were taken after.
+2. *Prompt cache.* Prompts started with `Run 1.`, `Run 2.`, identical across script invocations. Ollama keeps a prompt cache, so a later invocation re-read a 2,908-token prompt at 7,000 to 9,000 tok/s (`prompt_eval_count` still reports all 2,908 tokens). Fixed with a random nonce at the start of every prompt (`tools/compare_engines.py`, `apu bench`).
+3. *Stale placement.* A request with default options reused a model still loaded with `num_gpu: 0` from the previous test, so a run labelled GPU was 0 % on the GPU (`/api/ps` `size_vram: 0`). Fixed by unloading (`keep_alive: 0`) before each configuration and recording `/api/ps` after it.
+
+Clean run, nothing else downloading, Chrome and Cursor still open (`bench/results/20261021-135731_engines.json`):
+
+| Ollama 0.40.7, `qwen3.6:35b-a3b` | Writing (tok/s), median (runs) | Reading (tok/s), median (runs) | Placement checked |
+|---|---|---|---|
+| Vulkan iGPU | 11.7 (9.5, 11.7, 12.8) | 93 (96, 93, 77) | 20.6 GB, 100 % GPU |
+| CPU only | 11.2 (11.6, 11.2, 10.5) | 53 (54, 52, 53) | 20.9 GB, 0 % GPU |
+
+Writing is a tie within the run-to-run spread; reading a long prompt is 1.8× faster on the iGPU. 11.7 tok/s at ~2 GB per token is ~23 GB/s of effective weight traffic, a fifth of the theoretical bandwidth, on both devices: whatever limits generation is not specific to the GPU.

@@ -1,0 +1,77 @@
+{
+  "at": "2026-10-21T12:03:15+00:00",
+  "ctx": 16384,
+  "machine": {
+    "vendor": "LENOVO",
+    "model": "21YWCTO1WW",
+    "cpu": "AMD Ryzen AI 7 PRO 450 w/ Radeon 860M",
+    "cores": 8,
+    "threads": 16,
+    "gpus": [
+      "AMD Radeon(TM) 860M Graphics (driver 32.0.22054.1006)"
+    ],
+    "ram_gb": 63.1,
+    "ram_free_gb": 0.6,
+    "ram_modules": 4,
+    "ram_mts": 8000,
+    "os": "Microsoft Windows 11 Pro 10.0.26200"
+  },
+  "results": {
+    "lmstudio": {
+      "model": "qwen3.6-35b-a3b",
+      "runs": [
+        {
+          "gen": {
+            "gen_tps": 7.817924163928196,
+            "prompt_tps": 18.71418313283743,
+            "gen_tokens": 256,
+            "prompt_tokens": 54,
+            "reasoning_tokens": 256
+          },
+          "read": {
+            "gen_tps": 11.76935944493654,
+            "prompt_tps": 84.07634362347159,
+            "gen_tokens": 24,
+            "prompt_tokens": 2920,
+            "reasoning_tokens": 24
+          }
+        },
+        {
+          "gen": {
+            "gen_tps": 9.385029214859864,
+            "prompt_tps": 31.579047718920258,
+            "gen_tokens": 256,
+            "prompt_tokens": 53,
+            "reasoning_tokens": 256
+          },
+          "read": {
+            "gen_tps": 9.669191727039559,
+            "prompt_tps": 77.96909394864473,
+            "gen_tokens": 24,
+            "prompt_tokens": 2919,
+            "reasoning_tokens": 24
+          }
+        },
+        {
+          "gen": {
+            "gen_tps": 9.666014558155101,
+            "prompt_tps": 27.73503386755802,
+            "gen_tokens": 256,
+            "prompt_tokens": 54,
+            "reasoning_tokens": 256
+          },
+          "read": {
+            "gen_tps": 13.475699213019166,
+            "prompt_tps": 82.62047472875939,
+            "gen_tokens": 24,
+            "prompt_tokens": 2920,
+            "reasoning_tokens": 24
+          }
+        }
+      ],
+      "placement": null,
+      "median_gen_tps": 9.39,
+      "median_prompt_tps": 82.6
+    }
+  }
+}

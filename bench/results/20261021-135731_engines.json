@@ -1,0 +1,129 @@
+{
+  "at": "2026-10-21T11:57:31+00:00",
+  "ctx": 16384,
+  "machine": {
+    "vendor": "LENOVO",
+    "model": "21YWCTO1WW",
+    "cpu": "AMD Ryzen AI 7 PRO 450 w/ Radeon 860M",
+    "cores": 8,
+    "threads": 16,
+    "gpus": [
+      "AMD Radeon(TM) 860M Graphics (driver 32.0.22054.1006)"
+    ],
+    "ram_gb": 63.1,
+    "ram_free_gb": 15,
+    "ram_modules": 4,
+    "ram_mts": 8000,
+    "os": "Microsoft Windows 11 Pro 10.0.26200"
+  },
+  "results": {
+    "ollama": {
+      "model": "qwen3.6:35b-a3b",
+      "runs": [
+        {
+          "gen": {
+            "gen_tps": 9.457498665975482,
+            "prompt_tps": 9.930874146903065,
+            "gen_tokens": 256,
+            "prompt_tokens": 57
+          },
+          "read": {
+            "gen_tps": 13.391631569432262,
+            "prompt_tps": 96.19011774387806,
+            "gen_tokens": 8,
+            "prompt_tokens": 2923
+          }
+        },
+        {
+          "gen": {
+            "gen_tps": 11.706561500283655,
+            "prompt_tps": 29.547049109344496,
+            "gen_tokens": 256,
+            "prompt_tokens": 55
+          },
+          "read": {
+            "gen_tps": 13.753431911056555,
+            "prompt_tps": 93.15894718334195,
+            "gen_tokens": 8,
+            "prompt_tokens": 2921
+          }
+        },
+        {
+          "gen": {
+            "gen_tps": 12.845790747989822,
+            "prompt_tps": 38.56839529763298,
+            "gen_tokens": 256,
+            "prompt_tokens": 57
+          },
+          "read": {
+            "gen_tps": 11.081652385187157,
+            "prompt_tps": 76.72629504628212,
+            "gen_tokens": 8,
+            "prompt_tokens": 2923
+          }
+        }
+      ],
+      "placement": {
+        "size": 22104716082,
+        "size_vram": 22104716082,
+        "gpu_share": 1.0
+      },
+      "median_gen_tps": 11.71,
+      "median_prompt_tps": 93.2
+    },
+    "ollama-cpu": {
+      "model": "qwen3.6:35b-a3b",
+      "runs": [
+        {
+          "gen": {
+            "gen_tps": 11.645868252930972,
+            "prompt_tps": 40.17822213481697,
+            "gen_tokens": 256,
+            "prompt_tokens": 57
+          },
+          "read": {
+            "gen_tps": 10.705434613881739,
+            "prompt_tps": 53.530919013799675,
+            "gen_tokens": 8,
+            "prompt_tokens": 2923
+          }
+        },
+        {
+          "gen": {
+            "gen_tps": 11.187260716620086,
+            "prompt_tps": 40.57424660030523,
+            "gen_tokens": 256,
+            "prompt_tokens": 57
+          },
+          "read": {
+            "gen_tps": 10.31918530032054,
+            "prompt_tps": 52.004128448169055,
+            "gen_tokens": 8,
+            "prompt_tokens": 2923
+          }
+        },
+        {
+          "gen": {
+            "gen_tps": 10.45545002176449,
+            "prompt_tps": 39.084474111421464,
+            "gen_tokens": 256,
+            "prompt_tokens": 56
+          },
+          "read": {
+            "gen_tps": 10.566538151146403,
+            "prompt_tps": 52.58659930398883,
+            "gen_tokens": 8,
+            "prompt_tokens": 2922
+          }
+        }
+      ],
+      "placement": {
+        "size": 22391784731,
+        "size_vram": 0,
+        "gpu_share": 0.0
+      },
+      "median_gen_tps": 11.19,
+      "median_prompt_tps": 52.6
+    }
+  }
+}

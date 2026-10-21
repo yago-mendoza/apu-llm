@@ -12,6 +12,7 @@ import json
 import statistics
 import sys
 import urllib.request
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -19,8 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from apu import machine  # noqa: E402
 from apu.cli import FILLER  # noqa: E402
 
-GEN = "Run {i}. Write a detailed, 300-word explanation of how a heat pump moves heat from a cold room to a warm one."
-READ = "Run {i}.\n\n" + FILLER * 45 + "\n\nIn one sentence: what does the controller adjust?"
+GEN = "Run {i}, nonce {n}. Write a detailed, 300-word explanation of how a heat pump moves heat from a cold room to a warm one."
+READ = "Run {i}, nonce {n}.\n\n" + FILLER * 45 + "\n\nIn one sentence: what does the controller adjust?"
 
 
 def post(url, body, timeout=900):
@@ -29,13 +30,33 @@ def post(url, body, timeout=900):
         return json.load(r)
 
 
-def ollama(model, prompt, max_tokens, ctx):
+def _ollama(model, prompt, max_tokens, ctx, num_gpu=None):
+    options = {"num_ctx": ctx, "num_predict": max_tokens, "temperature": 0}
+    if num_gpu is not None:
+        options["num_gpu"] = num_gpu  # number of layers on the GPU; 0 = CPU only
     r = post("http://127.0.0.1:11434/api/chat", {
         "model": model, "messages": [{"role": "user", "content": prompt}], "stream": False, "think": False,
-        "options": {"num_ctx": ctx, "num_predict": max_tokens, "temperature": 0}})
+        "options": options})
     return {"gen_tps": r["eval_count"] / (r["eval_duration"] / 1e9),
             "prompt_tps": r["prompt_eval_count"] / (r["prompt_eval_duration"] / 1e9),
             "gen_tokens": r["eval_count"], "prompt_tokens": r["prompt_eval_count"]}
+
+
+def ollama(model, prompt, max_tokens, ctx):
+    return _ollama(model, prompt, max_tokens, ctx)
+
+
+def ollama_cpu(model, prompt, max_tokens, ctx):
+    return _ollama(model, prompt, max_tokens, ctx, num_gpu=0)
+
+
+def ollama_placement(model):
+    """Where the engine actually put the model: the requested setting is not proof."""
+    with urllib.request.urlopen("http://127.0.0.1:11434/api/ps", timeout=10) as r:
+        m = next((m for m in json.load(r)["models"] if m["name"] == model), None)
+    if not m:
+        return None
+    return {"size": m["size"], "size_vram": m["size_vram"], "gpu_share": round(m["size_vram"] / m["size"], 3)}
 
 
 def lmstudio(model, prompt, max_tokens, ctx):
@@ -55,32 +76,42 @@ def lmstudio(model, prompt, max_tokens, ctx):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--ollama")
+    p.add_argument("--ollama-cpu", help="same model in Ollama with every layer on the CPU")
     p.add_argument("--lmstudio")
     p.add_argument("--runs", type=int, default=3)
     p.add_argument("--ctx", type=int, default=16384)
     p.add_argument("--out", default=str(Path(__file__).resolve().parents[1] / "bench" / "results"))
     a = p.parse_args()
 
-    engines = [(n, f, m) for n, f, m in (("ollama", ollama, a.ollama), ("lmstudio", lmstudio, a.lmstudio)) if m]
+    engines = [(n, f, m) for n, f, m in (("ollama", ollama, a.ollama), ("ollama-cpu", ollama_cpu, a.ollama_cpu),
+                                          ("lmstudio", lmstudio, a.lmstudio)) if m]
     results = {}
     for name, fn, model in engines:
+        if name.startswith("ollama"):
+            # Unload first: Ollama keeps a loaded model and reuses it even when the new request asks
+            # for a different placement (num_gpu), so CPU and GPU runs would silently share one load.
+            post("http://127.0.0.1:11434/api/generate", {"model": model, "keep_alive": 0})
         fn(model, "Say ok.", 4, a.ctx)  # warm-up: loads the model, not measured
         runs = []
         for i in range(1, a.runs + 1):
-            g = fn(model, GEN.format(i=i), 256, a.ctx)
-            r = fn(model, READ.format(i=i), 24, a.ctx)
+            n = uuid.uuid4().hex[:12]  # unique prefix: no engine can reuse a cached prompt, even across invocations
+            g = fn(model, GEN.format(i=i, n=n), 256, a.ctx)
+            r = fn(model, READ.format(i=i, n=n), 24, a.ctx)
             runs.append({"gen": g, "read": r})
             print(f"{name:9} run {i}: writing {g['gen_tps']:5.1f} tok/s ({g['gen_tokens']} tok) · "
                   f"reading {r['prompt_tps']:6.0f} tok/s ({r['prompt_tokens']} tok)", flush=True)
+        placement = ollama_placement(model) if name.startswith("ollama") else None
+        if placement:
+            print(f"{name:9} placement: {placement['size'] / 2**30:.1f} GB loaded, {100 * placement['gpu_share']:.0f}% on the GPU")
         results[name] = {
-            "model": model, "runs": runs,
+            "model": model, "runs": runs, "placement": placement,
             "median_gen_tps": round(statistics.median(x["gen"]["gen_tps"] for x in runs), 2),
             "median_prompt_tps": round(statistics.median(x["read"]["prompt_tps"] for x in runs), 1),
         }
 
     print()
     for name, r in results.items():
-        print(f"{name:9} median: writing {r['median_gen_tps']} tok/s · reading {r['median_prompt_tps']} tok/s")
+        print(f"{name:10} median: writing {r['median_gen_tps']} tok/s · reading {r['median_prompt_tps']} tok/s")
 
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)

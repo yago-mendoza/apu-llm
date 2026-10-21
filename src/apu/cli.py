@@ -17,6 +17,7 @@ import platform
 import statistics
 import sys
 import time
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -237,12 +238,14 @@ def cmd_bench(args, cfg):
     runs = []
     long_text = FILLER * 45  # about 3,500 tokens
     for i in range(1, args.runs + 1):
-        # Each run starts differently, so the engine cannot reuse the previous run's prompt cache.
-        _, gen = run_chat(cfg, [{"role": "user", "content": f"Run {i}. Write a detailed, 300-word explanation "
-                                 "of how a heat pump moves heat from a cold room to a warm one."}],
+        # A random prefix per run: the engine keeps a prompt cache, and a prompt it has seen before
+        # (even in an earlier invocation) would read in milliseconds and fake the reading speed.
+        nonce = uuid.uuid4().hex[:12]
+        _, gen = run_chat(cfg, [{"role": "user", "content": f"Run {i}, nonce {nonce}. Write a detailed, 300-word "
+                                 "explanation of how a heat pump moves heat from a cold room to a warm one."}],
                           model=model, think=False, max_tokens=256, temperature=0, source="bench")
-        _, pp = run_chat(cfg, [{"role": "user", "content": f"Run {i}.\n\n{long_text}\n\nIn one sentence: what does "
-                                "the controller adjust?"}],
+        _, pp = run_chat(cfg, [{"role": "user", "content": f"Run {i}, nonce {nonce}.\n\n{long_text}\n\nIn one "
+                                "sentence: what does the controller adjust?"}],
                          model=model, think=False, max_tokens=24, temperature=0, source="bench")
         runs.append({"gen": gen.as_dict(), "prompt": pp.as_dict()})
         print(f"  run {i}: writing {gen.gen_tps:5.1f} tok/s · reading {pp.prompt_tps:6.0f} tok/s"
