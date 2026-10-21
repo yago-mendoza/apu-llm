@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 488" width="760" height="488" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
+<style>.bg{fill:#fcfcfb}.t1{fill:#0b0b0b}.t2{fill:#52514e}.grid{stroke:#e4e3df}.local{fill:#2a78d6}.cloud{fill:#b9b8b2}@media (prefers-color-scheme:dark){.bg{fill:#1a1a19}.t1{fill:#f0efec}.t2{fill:#c3c2b7}.grid{stroke:#343431}.local{fill:#3987e5}.cloud{fill:#5c5b56}}</style>
+<rect class="bg" width="760" height="488" rx="8"/>
+<text class="t1" x="24" y="34" font-size="18" font-weight="600">How smart is a model that fits in 64 GB?</text>
+<text class="t2" x="24" y="56" font-size="13">Artificial Analysis Intelligence Index v4.3.2 (reasoning modes), October 2026. Higher is better.</text>
+<line class="grid" x1="270" y1="72" x2="270" y2="418"/><text class="t2" x="270" y="434" font-size="11" text-anchor="middle">0</text>
+<line class="grid" x1="345" y1="72" x2="345" y2="418"/><text class="t2" x="345" y="434" font-size="11" text-anchor="middle">10</text>
+<line class="grid" x1="420" y1="72" x2="420" y2="418"/><text class="t2" x="420" y="434" font-size="11" text-anchor="middle">20</text>
+<line class="grid" x1="495" y1="72" x2="495" y2="418"/><text class="t2" x="495" y="434" font-size="11" text-anchor="middle">30</text>
+<line class="grid" x1="570" y1="72" x2="570" y2="418"/><text class="t2" x="570" y="434" font-size="11" text-anchor="middle">40</text>
+<line class="grid" x1="645" y1="72" x2="645" y2="418"/><text class="t2" x="645" y="434" font-size="11" text-anchor="middle">50</text>
+<line class="grid" x1="720" y1="72" x2="720" y2="418"/><text class="t2" x="720" y="434" font-size="11" text-anchor="middle">60</text>
+<text class="t1" x="260" y="97" font-size="13" text-anchor="end">GPT-5.6 Sol</text>
+<rect class="cloud" x="270" y="84" width="441.75" height="20" rx="4"><title>GPT-5.6 Sol: 58.9</title></rect>
+<text class="t2" x="717.75" y="98" font-size="12">58.9</text>
+<text class="t1" x="260" y="131" font-size="13" text-anchor="end">Claude Opus 5.5</text>
+<rect class="cloud" x="270" y="118" width="432" height="20" rx="4"><title>Claude Opus 5.5: 57.6</title></rect>
+<text class="t2" x="708" y="132" font-size="12">57.6</text>
+<text class="t1" x="260" y="165" font-size="13" text-anchor="end">DeepSeek V4 Pro (open, too big)</text>
+<rect class="cloud" x="270" y="152" width="399" height="20" rx="4"><title>DeepSeek V4 Pro (open, too big): 53.2</title></rect>
+<text class="t2" x="675" y="166" font-size="12">53.2</text>
+<text class="t1" x="260" y="199" font-size="13" text-anchor="end">Gemini 4 Argon</text>
+<rect class="cloud" x="270" y="186" width="394.5" height="20" rx="4"><title>Gemini 4 Argon: 52.6</title></rect>
+<text class="t2" x="670.5" y="200" font-size="12">52.6</text>
+<text class="t1" x="260" y="233" font-size="13" text-anchor="end">Qwen3.8 27B</text>
+<rect class="local" x="270" y="220" width="252.75" height="20" rx="4"><title>Qwen3.8 27B: 33.7</title></rect>
+<text class="t2" x="528.75" y="234" font-size="12">33.7</text>
+<text class="t1" x="260" y="267" font-size="13" text-anchor="end">GPT-5 high (Aug 2025)</text>
+<rect class="cloud" x="270" y="254" width="172.5" height="20" rx="4"><title>GPT-5 high (Aug 2025): 23</title></rect>
+<text class="t2" x="448.5" y="268" font-size="12">23</text>
+<text class="t1" x="260" y="301" font-size="13" text-anchor="end" font-weight="600">Qwen3.6 35B-A3B (installed)</text>
+<rect class="local" x="270" y="288" width="136.5" height="20" rx="4"><title>Qwen3.6 35B-A3B (installed): 18.2</title></rect>
+<text class="t2" x="412.5" y="302" font-size="12">18.2</text>
+<text class="t1" x="260" y="335" font-size="13" text-anchor="end">Gemma 4 26B-A4B</text>
+<rect class="local" x="270" y="322" width="125.25" height="20" rx="4"><title>Gemma 4 26B-A4B: 16.7</title></rect>
+<text class="t2" x="401.25" y="336" font-size="12">16.7</text>
+<text class="t1" x="260" y="369" font-size="13" text-anchor="end">gpt-oss-120b (needs ~65 GB)</text>
+<rect class="cloud" x="270" y="356" width="87" height="20" rx="4"><title>gpt-oss-120b (needs ~65 GB): 11.6</title></rect>
+<text class="t2" x="363" y="370" font-size="12">11.6</text>
+<text class="t1" x="260" y="403" font-size="13" text-anchor="end">gpt-oss-20b</text>
+<rect class="local" x="270" y="390" width="67.5" height="20" rx="4"><title>gpt-oss-20b: 9.0</title></rect>
+<text class="t2" x="343.5" y="404" font-size="12">9.0</text>
+<rect class="local" x="24" y="448" width="12" height="12" rx="3"/><text class="t2" x="42" y="458" font-size="12">Runs on this laptop (64 GB, Radeon 860M)</text>
+<rect class="cloud" x="320" y="448" width="12" height="12" rx="3"/><text class="t2" x="338" y="458" font-size="12">Cloud only, or too big to fit</text>
+<text class="t2" x="24" y="480" font-size="10.5">Sources: benchlm.ai mirror of Artificial Analysis (20 Oct 2026); GPT-5 high is AA's estimate. Index versions are not comparable across releases.</text>
+</svg>
+
+

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apu-llm"
+version = "0.1.0"
+description = "Local LLMs on APU laptops (shared-memory iGPUs): one command to set up, ask, benchmark, and hand tasks over from Claude Code."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Yago Mendoza" }]
+dependencies = []
+
+[project.scripts]
+apu = "apu.cli:main"
+
+[project.urls]
+Homepage = "https://infraphysics.net"
+Repository = "https://github.com/yago-mendoza/apu-llm"
+
+[tool.setuptools.packages.find]
+where = ["src"]

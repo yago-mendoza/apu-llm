@@ -1,0 +1,5 @@
+time=2026-10-21T11:55:51.660+02:00 level=INFO source=runner.go:60 msg="discovering available GPUs..."
+time=2026-10-21T11:56:19.622+02:00 level=WARN source=amd.go:470 msg="dropping ROCm device — no rocblas support for gfx target" device=ROCm0 gfx_target=gfx1152 supported="map[gfx1030:true gfx1100:true gfx1101:true gfx1102:true gfx1150:true gfx1151:true gfx1200:true gfx1201:true gfx906:true]" hint="set HSA_OVERRIDE_GFX_VERSION to map to a supported target"
+time=2026-10-21T11:56:21.543+02:00 level=INFO source=runner.go:405 msg="dropping integrated GPU; to enable, set OLLAMA_IGPU_ENABLE=1" id=0 library=Vulkan compute=0.0 name=Vulkan0 description="AMD Radeon(TM) 860M Graphics" pci_id=""
+time=2026-10-21T11:56:21.544+02:00 level=INFO source=types.go:50 msg="inference compute" id=cpu library=cpu compute="" name=cpu description=cpu libdirs=ollama driver="" pci_id="" type="" total="63.1 GiB" available="30.3 GiB"
+time=2026-10-21T11:56:21.544+02:00 level=INFO source=routes.go:2562 msg="vram-based default context" total_vram="0 B" default_num_ctx=4096
