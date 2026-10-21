@@ -6,6 +6,7 @@ import platform
 import re
 import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -246,7 +247,10 @@ def setup(cfg, assume_yes: bool = False) -> int:
         if r.returncode != 0:
             print("4. Claude Code is installed. Registering apu as an MCP server lets it hand tasks to the local model.")
             if _ask("   Register it (user scope, all projects)?", assume_yes):
-                subprocess.run(["claude", "mcp", "add", "--scope", "user", "apu", "--", "apu", "mcp"], check=True)
+                # The absolute path, not "apu": a Claude Code started before the PATH change
+                # would not find the bare name.
+                exe = shutil.which("apu") or sys.argv[0]
+                subprocess.run(["claude", "mcp", "add", "--scope", "user", "apu", "--", exe, "mcp"], check=True)
         else:
             print("4. Claude Code already has the apu MCP server.")
 
