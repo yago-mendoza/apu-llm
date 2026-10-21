@@ -107,3 +107,9 @@ A 256-token answer takes about 100 s; a 2,900-token prompt takes about 3.5 min t
 **A fresh terminal**, opened by the user: `apu` resolves (the PATH change persisted), `apu ping` and `apu stats` work (`screens/06-terminal-apu-ping-stats.png`). A second run seven minutes later caught a cold load: the model had unloaded after Ollama's 5 idle minutes, and the next call reloaded it in 33.8 s (`screens/07-terminal-cold-load-after-idle.png`). Free RAM with the model loaded and the usual apps open: 10.9 to 12.7 GB.
 
 **One-line installer** (`install.ps1`), written from everything above that had to be done by hand: Python via winget if missing (the Microsoft Store `python` stub does not count), `pip install --user` from GitHub (falling back to the zip when git is absent), pip's user Scripts folder added to the user PATH (`sysconfig.get_path('scripts', 'nt_user')`), then `apu setup`, which asks before each step.
+
+## In use: first impression (18:30)
+
+The owner's first real use was the Ollama app's chat, asking for ASCII art; the verdict was blunt (it cannot draw ASCII). Repeated through `apu ask`, temperature 0, thinking off: a "sitting cat" came out as a dog in profile (3.6 s), a house with a roof narrower than its walls and the base drawn twice (54 tok at 16.7 tok/s, load 36.1 s). ASCII art is grid layout, which tokenised text makes hard for any model, and it is not the job the repo is built for; it still shows the 18.2 vs 57.6 gap. Decision: keep both models installed (38 GB of disk, no memory when idle) and use the local model only through Claude Code for private or bulk work.
+
+Side note: the Ollama app's chat had `qwen3.5:4b` selected, not downloaded, so typing "hi" started a pull. Cancelled; the orphan `-partial` blobs (644 MB) are not removed by Ollama and were deleted by hand. Pick the model in the selector under the input box first.
