@@ -137,6 +137,7 @@ Ran it on another machine? `apu bench` writes a JSON file with the machine's spe
 - [`docs/evidence/`](docs/evidence): engine logs and transcripts quoted in the journal.
 - [`docs/assets/screens/`](docs/assets/screens): screenshots of every step.
 - [`tools/compare_engines.py`](tools/compare_engines.py): the same weights and prompts through Ollama and LM Studio, with engine-side timings.
+- [`tools/plot_bench.py`](tools/plot_bench.py): draws the write-up's benchmark plots (SVG, light and dark) from `bench/results/`.
 - [`tools/capture.ps1`](tools/capture.ps1): captures one window (never the whole screen) for the screenshots.
 - `src/apu/`: the command, standard library only. `ollama.py` talks to Ollama's native API, which reports engine timings and the GPU/CPU split; `mcp.py` is a minimal MCP server over stdio.
 
